@@ -5,22 +5,19 @@ import java.util.*;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
-public class Methods{
-    int num;
-    String[] vanparts;
+class Methods{
+    private int num;
     List<BikeParts> bikes = new ArrayList<>();
-    List<VanBikeParts> vanbikes = new ArrayList<>();
-    String[] user;
-    String[] startVan;
-    List<String> vannames = new ArrayList<>();
-    List<Integer> vannumbers = new ArrayList<>();
+    private List<VanBikeParts> vanbikes = new ArrayList<>();
+    private String[] user;
+    private List<String> vannames = new ArrayList<>();
+    private List<Integer> vannumbers = new ArrayList<>();
     List<String> names = new ArrayList<>();
     List<Integer> numbers = new ArrayList<>();
-    List<String> vanNames = new ArrayList<>();
-    List<Integer> vanNumbers = new ArrayList<>();
-    String[] userr;
+    private List<String> vanNames = new ArrayList<>();
+    private List<Integer> vanNumbers = new ArrayList<>();
 
-    public void readFile() {
+    void readFile() {
         initialInventory();
         Scanner in = new Scanner(System.in);
         String line;
@@ -48,7 +45,7 @@ public class Methods{
     }
 
     //Manually enter a part and decides if the part is already in the warehouse
-    public void manuEnter(List<BikeParts> bikes){
+    void manuEnter(List<BikeParts> bikes){
         Scanner in = new Scanner(System.in);
         Scanner scnr = new Scanner(System.in);
 
@@ -78,13 +75,13 @@ public class Methods{
         }
     }
     //Does exactly that..quits the program
-    public void userQuit(List<BikeParts> bikes){
+    void userQuit(List<BikeParts> bikes){
         writeEnd(this.bikes);
         System.out.println("Have a nice day!");
     }
 
     // Just a simple message to ask the user if they would like to perform another action
-    public void goAgain(List<BikeParts> bikes, List<Integer> numbers, List<String> names){
+    void goAgain(List<BikeParts> bikes, List<Integer> numbers, List<String> names){
         Scanner in = new Scanner(System.in);
         UserInterface user = new UserInterface();
         System.out.println("Would you like to do something else?\nYes or No?");
@@ -100,7 +97,7 @@ public class Methods{
     //Writes the original DB from the inventory files
     private void writeFile(String line, List<BikeParts> a){
         //Collections.sort(names);
-        userr = line.split(",");
+        String[] userr = line.split(",");
         for (int i = 0; i < names.size(); i++) {
             if (userr[0].equalsIgnoreCase(names.get(i))) {
                 bikes.get(i).setQuantity(bikes.get(i).getQuantity() + Integer.parseInt(userr[5]));
@@ -136,7 +133,7 @@ public class Methods{
     }
 
     //Creates a variable for the number of parts in the warehouse to make counting easy
-    public int numberOfParts(){
+    private int numberOfParts(){
         String parts;
         BufferedReader reader = null;
         try {
@@ -161,7 +158,7 @@ public class Methods{
     }
 
     //Runs the inventory of the warehouse from the start
-    public void initialInventory(){
+    void initialInventory(){
         String linee;
         BufferedReader reader = null;
         num = numberOfParts();
@@ -196,7 +193,7 @@ public class Methods{
     }
 
     //Runs the inventory of the warehouse from the start
-    public void noInventory(){
+    private void noInventory(){
         String linee;
         BufferedReader reader = null;
         num = numberOfParts();
@@ -226,7 +223,7 @@ public class Methods{
     }
 
     //Shows a parts price and name if the part is in stock
-    public void showPart(List<BikeParts> arr){
+    void showPart(List<BikeParts> arr){
         Scanner in = new Scanner(System.in);
         System.out.println("Enter Part Name: ");
         String name = in.next();
@@ -254,7 +251,7 @@ public class Methods{
     }
 
     //Sells a part and decreases the quantity of the part and if their is only one part left it removes the part
-    public void sellPart(List<BikeParts> arr){
+    void sellPart(List<BikeParts> arr){
         Scanner in = new Scanner(System.in);
         System.out.println("Enter Part Number: ");
         boolean contains = false;
@@ -265,13 +262,12 @@ public class Methods{
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println(dtf.format(now));
-                //System.out.println(System.currentTimeMillis());
                 contains = true;
                 if(arr.get(i).getQuantity() > 0){
                     arr.get(i).setQuantity(arr.get(i).getQuantity() - 1);
                     break;
                 }
-                else if(arr.get(i).getQuantity() < 0){
+                else if(arr.get(i).getQuantity() <= 0){
                     arr.remove(i);
                     break;
                 }
@@ -282,7 +278,7 @@ public class Methods{
             sellPart(arr);
         }
     }
-    public void sortNumber(List<BikeParts> bikes, List<Integer> numbers, String warehouse){
+    void sortNumber(List<BikeParts> bikes, List<Integer> numbers, String warehouse){
         if(warehouse.equalsIgnoreCase("main warehouse")) {
             Collections.sort(numbers);
             int z = 0;
@@ -306,7 +302,7 @@ public class Methods{
             }
         }
     }
-    public void sortName(List<BikeParts> bikes, List<String> names, String warehouse){
+    void sortName(List<BikeParts> bikes, List<String> names, String warehouse){
         if(warehouse.equalsIgnoreCase("main warehouse")) {
             Collections.sort(names);
             int z = 0;
@@ -333,7 +329,7 @@ public class Methods{
 
     //PROJECT TWO CODE
 
-    public void addVan() {
+    void addVan() {
         Scanner in = new Scanner(System.in);
         System.out.println("What would you like to call this van?");
         String file = in.next();
@@ -343,7 +339,7 @@ public class Methods{
             System.out.println(e.getMessage());
         }
     }
-    public void readVanFile(List<BikeParts> bikes) {
+    void readVanFile(List<BikeParts> bikes) {
         Scanner in = new Scanner(System.in);
         String line;
         String whichInv;
@@ -354,7 +350,7 @@ public class Methods{
         try {
             reader = new BufferedReader(new FileReader(file + ".txt"));
             line = reader.readLine();
-            startVan = line.split(",");
+            String[] startVan = line.split(",");
             whichInv = startVan[0];
             van = startVan[1];
 
@@ -383,7 +379,7 @@ public class Methods{
             }
         }
     }
-    public void writeVans(String van, List<BikeParts> bikes, int i) {
+    private void writeVans(String van, List<BikeParts> bikes, int i) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(van + ".txt", true))) {
             writer.write(bikes.get(i).toString());
             writer.newLine();
@@ -411,12 +407,12 @@ public class Methods{
             System.out.println(e.getMessage());
         }
     }
-    public void parseInvofVan(String line){
-        vanparts = line.split(",");
+    private void parseInvofVan(String line){
+        String[] vanparts = line.split(",");
         vanNames.add(vanparts[0]);
         vanNumbers.add(Integer.parseInt(vanparts[1]));
     }
-    public void moveInv(List<BikeParts> bikes, List<String> vanNames, List<Integer> vanNumbers, String van, String whichInv){
+    private void moveInv(List<BikeParts> bikes, List<String> vanNames, List<Integer> vanNumbers, String van, String whichInv){
         int z = 0;
         if(whichInv.equalsIgnoreCase("mainwarehouse")) {
             for (int i = 0; z < vanNames.size(); i++) {
@@ -484,7 +480,7 @@ public class Methods{
         }
         VanwriteEnd(vanbikes,whichInv);
     }
-    public List VaninitialInventory(String whichInv){
+    void VaninitialInventory(String whichInv){
         String linee;
         BufferedReader reader = null;
         num = numberOfParts(whichInv);
@@ -516,9 +512,8 @@ public class Methods{
                 System.out.println(e.getMessage());
             }
         }
-        return vannames;
     }
-    public List VaninitialInventorysortnum(String whichInv){
+    void VaninitialInventorysortnum(String whichInv){
         String linee;
         BufferedReader reader = null;
         num = numberOfParts(whichInv);
@@ -550,9 +545,8 @@ public class Methods{
                 System.out.println(e.getMessage());
             }
         }
-        return vannumbers;
     }
-    public int numberOfParts(String whichInv){
+    private int numberOfParts(String whichInv){
         String parts;
         BufferedReader reader = null;
         try {
