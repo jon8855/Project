@@ -1,10 +1,7 @@
 package com.company;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
@@ -21,8 +18,10 @@ public class Methods{
     List<Integer> numbers = new ArrayList<>();
     List<String> vanNames = new ArrayList<>();
     List<Integer> vanNumbers = new ArrayList<>();
+    String[] userr;
 
     public void readFile() {
+        initialInventory();
         Scanner in = new Scanner(System.in);
         String line;
         BufferedReader reader = null;
@@ -32,7 +31,7 @@ public class Methods{
             reader = new BufferedReader(new FileReader(file + ".txt"));
             line = reader.readLine();
             while (line != null) {
-                writeFile(line);
+                writeFile(line, bikes);
                 line = reader.readLine();
             }
         } catch (IOException e) {
@@ -46,7 +45,6 @@ public class Methods{
                 System.out.println(e.getMessage());
             }
         }
-        initialInventory();
     }
 
     //Manually enter a part and decides if the part is already in the warehouse
@@ -81,7 +79,7 @@ public class Methods{
     }
     //Does exactly that..quits the program
     public void userQuit(List<BikeParts> bikes){
-        writeEnd(bikes);
+        writeEnd(this.bikes);
         System.out.println("Have a nice day!");
     }
 
@@ -100,18 +98,31 @@ public class Methods{
     }
 
     //Writes the original DB from the inventory files
-    private void writeFile(String line){
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("warehouseDB.txt", true))) {
-            writer.write(line);
-            writer.newLine();
+    private void writeFile(String line, List<BikeParts> a){
+        //Collections.sort(names);
+        userr = line.split(",");
+        for (int i = 0; i < names.size(); i++) {
+            if (userr[0].equalsIgnoreCase(names.get(i))) {
+                bikes.get(i).setQuantity(bikes.get(i).getQuantity() + Integer.parseInt(userr[5]));
+                break;
+            }
+            else {
+                try(BufferedWriter writer = new BufferedWriter(new FileWriter("warehouseDB.txt", true))) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+                catch (IOException e){
+                    System.out.println(e.getMessage());
+                }
+            }
         }
-        catch (IOException e){
-            System.out.println(e.getMessage());
-        }
+        //initialInventory();
+        writeEnd(a);
     }
 
     //Writes the warehouse DB again in case any changes were made i.e Sell
     private void writeEnd(List<BikeParts> line){
+
         try(BufferedWriter writer = new BufferedWriter(new FileWriter("warehouseDB.txt"))) {
             for(int i = 0; i<line.size(); i++){
                 String str = line.get(i).toString();
@@ -158,7 +169,7 @@ public class Methods{
             reader = new BufferedReader(new FileReader("warehouseDB.txt"));
             linee = reader.readLine();
             if(linee == null){
-                readFile();
+                noInventory();
             }
             while (linee != null) {
                 for (int i = 0; i < num; i++) {
@@ -168,6 +179,36 @@ public class Methods{
                     numbers.add(Integer.parseInt(user[1]));
                     linee = reader.readLine();
                 }
+            }
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    //Runs the inventory of the warehouse from the start
+    public void noInventory(){
+        String linee;
+        BufferedReader reader = null;
+        num = numberOfParts();
+        try {
+            reader = new BufferedReader(new FileReader("inventory.txt"));
+            linee = reader.readLine();
+            while (linee != null) {
+                    user = linee.split(",");
+                    bikes.add(new BikeParts(user[0],Integer.parseInt(user[1]), Double.parseDouble(user[2]), Double.parseDouble(user[3]), Boolean.parseBoolean(user[4]), Integer.parseInt(user[5])));
+                    names.add(user[0]);
+                    numbers.add(Integer.parseInt(user[1]));
+                    linee = reader.readLine();
             }
         }
         catch (IOException e) {
@@ -310,7 +351,6 @@ public class Methods{
         System.out.println("Please enter the name of your van delivery file:");
         String file = in.nextLine();
         String van;
-       // int numParts = 0;
         try {
             reader = new BufferedReader(new FileReader(file + ".txt"));
             line = reader.readLine();
@@ -322,7 +362,6 @@ public class Methods{
                 line = reader.readLine();
                 if(line!= null) {
                     parseInvofVan(line);
-                    //numParts++;
                 }
             }
             if(!whichInv.equalsIgnoreCase("mainwarehouse")){
@@ -390,7 +429,8 @@ public class Methods{
                     }
                     if (bikes.get(i).getQuantity() <= vanNumbers.get(z)) {
                         writeVans(van, bikes, i);
-                        bikes.remove(i);
+                        bikes.get(i).setQuantity(0);
+                        //bikes.remove(i);
                     }
                     z++;
                     i = 0;
@@ -408,11 +448,38 @@ public class Methods{
                     }
                     if (vanbikes.get(i).getQuantity() <= vanNumbers.get(z)) {
                         writeVanParts(van, vanbikes, i);
-                        vanbikes.remove(i);
+                        vanbikes.get(i).setQuantity(0);
+                        //vanbikes.remove(i);
                     }
                     z++;
                     i = 0;
                 }
+            }
+        }
+        int i = 0;
+        while (i< vanbikes.size()) {
+            if(vanbikes.get(i).getQuantity()>0) {
+                i++;
+            }
+            if(vanbikes.size()<=1){
+                i=0;
+                if(vanbikes.get(i).getQuantity()==0) {
+                    vanbikes.remove(i);
+                }
+                break;
+            }
+            if(vanbikes.get(i).getQuantity()==0) {
+                vanbikes.remove(i);
+                i=0;
+            }
+        }
+        while (i< bikes.size()-1) {
+            if(bikes.get(i).getQuantity()>0) {
+                i++;
+            }
+            if(bikes.get(i).getQuantity()==0) {
+                bikes.remove(i);
+                i=0;
             }
         }
         VanwriteEnd(vanbikes,whichInv);
